@@ -360,61 +360,197 @@
     }
 
     buildWireframeSection(wireframe) {
-      if (!wireframe.homepage || !wireframe.homepage.sections) {
-        return this.buildBasicWireframe();
-      }
+      const websiteType = this.formData.websiteType || "Business Website";
+      const sections = this.generateDetailedWireframe(websiteType);
 
-      const sections = wireframe.homepage.sections;
       const sectionsHtml = sections
         .map(
           (section) => `
-                <div class="awb-wireframe-section" 
-                     style="min-height: ${Math.max(
-                       section.height * 0.1,
-                       40
-                     )}px; background-color: ${section.color || "#374151"};"
-                     title="${section.name} - ${
-            section.priority || "normal"
-          } priority">
-                    <div style="font-weight: 600;">${section.name}</div>
-                    ${
-                      section.elements
-                        ? `<div style="font-size: 0.75rem; opacity: 0.8;">${
-                            Object.keys(section.elements).length
-                          } elements</div>`
-                        : ""
-                    }
-                </div>
-            `
+        <div class="awb-wireframe-section awb-detailed-section" 
+             style="min-height: ${
+               section.height
+             }px; flex-direction: column; padding: 1.5rem;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem; color: white;">${
+              section.name
+            }</div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                ${section.elements
+                  .map(
+                    (el) => `
+                    <div style="
+                        background: rgba(255, 255, 255, 0.1);
+                        padding: 0.25rem 0.5rem;
+                        border-radius: 4px;
+                        font-size: 0.75rem;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    ">${el}</div>
+                `
+                  )
+                  .join("")}
+            </div>
+            <div style="font-size: 0.7rem; opacity: 0.7; margin-top: 0.5rem;">${
+              section.height
+            }px height</div>
+        </div>
+    `
         )
         .join("");
 
       return `
-                <div class="awb-content-section">
-                    <h3>
-                        <svg class="awb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        Website Structure & Layout
-                    </h3>
-                    <div class="awb-wireframe-preview">
-                        ${sectionsHtml}
-                    </div>
-                    ${
-                      wireframe.layout_rationale
-                        ? `
-                        <div style="margin-top: 1rem; color: rgba(255, 255, 255, 0.8); font-size: 0.875rem;">
-                            <strong>Design Rationale:</strong> ${Object.values(
-                              wireframe.layout_rationale
-                            )
-                              .slice(0, 2)
-                              .join(". ")}.
-                        </div>
-                    `
-                        : ""
-                    }
-                </div>
-            `;
+        <div class="awb-content-section">
+            <h3>
+                <svg class="awb-section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Website Structure & Layout Blueprint
+            </h3>
+            <div class="awb-wireframe-preview">
+                ${sectionsHtml}
+            </div>
+        </div>
+    `;
+    }
+
+    generateDetailedWireframe(websiteType) {
+      const wireframes = {
+        "E-commerce Store": [
+          {
+            name: "Header",
+            height: 80,
+            elements: ["Logo", "Search Bar", "Account", "Cart (2)", "Menu"],
+          },
+          {
+            name: "Hero Banner",
+            height: 400,
+            elements: [
+              "Main Offer",
+              "CTA Button",
+              "Hero Image",
+              "Trust Badges",
+            ],
+          },
+          {
+            name: "Product Categories",
+            height: 200,
+            elements: ["Category Grid (6)", "View All Link"],
+          },
+          {
+            name: "Featured Products",
+            height: 350,
+            elements: ["Product Cards (8)", "Filter Options", "Sort Dropdown"],
+          },
+          {
+            name: "Testimonials",
+            height: 250,
+            elements: ["Review Cards (3)", "Star Ratings", "Customer Photos"],
+          },
+          {
+            name: "Newsletter",
+            height: 150,
+            elements: ["Email Input", "Subscribe Button", "Social Links"],
+          },
+          {
+            name: "Footer",
+            height: 300,
+            elements: [
+              "Company Info",
+              "Customer Service",
+              "Legal Links",
+              "Payment Icons",
+            ],
+          },
+        ],
+        "Business Website": [
+          {
+            name: "Header",
+            height: 80,
+            elements: ["Logo", "Navigation (5)", "Contact Button", "Phone"],
+          },
+          {
+            name: "Hero Section",
+            height: 500,
+            elements: ["Headline", "Subtext", "CTA Buttons (2)", "Hero Image"],
+          },
+          {
+            name: "Services",
+            height: 350,
+            elements: ["Service Cards (3)", "Icons", "Learn More Links"],
+          },
+          {
+            name: "About Us",
+            height: 300,
+            elements: ["Company Story", "Team Photo", "Stats Counter"],
+          },
+          {
+            name: "Testimonials",
+            height: 250,
+            elements: ["Client Reviews (3)", "Company Logos", "Ratings"],
+          },
+          {
+            name: "Contact CTA",
+            height: 200,
+            elements: ["Contact Form", "Phone Number", "Address"],
+          },
+          {
+            name: "Footer",
+            height: 250,
+            elements: [
+              "Quick Links",
+              "Contact Info",
+              "Social Media",
+              "Copyright",
+            ],
+          },
+        ],
+        "Portfolio Site": [
+          {
+            name: "Header",
+            height: 80,
+            elements: ["Name/Logo", "Portfolio", "About", "Contact"],
+          },
+          {
+            name: "Hero Introduction",
+            height: 400,
+            elements: [
+              "Profile Photo",
+              "Introduction",
+              "Skills Tags",
+              "Resume Link",
+            ],
+          },
+          {
+            name: "Featured Work",
+            height: 450,
+            elements: [
+              "Project Thumbnails (6)",
+              "Project Titles",
+              "View Details",
+            ],
+          },
+          {
+            name: "Skills & Experience",
+            height: 300,
+            elements: ["Skill Bars", "Experience Timeline", "Certifications"],
+          },
+          {
+            name: "Client Testimonials",
+            height: 250,
+            elements: ["Client Reviews", "Project Results", "Ratings"],
+          },
+          {
+            name: "Contact Form",
+            height: 200,
+            elements: ["Contact Form", "Social Links", "Availability Status"],
+          },
+          {
+            name: "Footer",
+            height: 150,
+            elements: ["Copyright", "Social Media", "Back to Top"],
+          },
+        ],
+      };
+
+      return wireframes[websiteType] || wireframes["Business Website"];
     }
 
     buildBasicWireframe() {

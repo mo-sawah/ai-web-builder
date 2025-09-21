@@ -24,7 +24,7 @@
   padding: 2rem;
   background: transparent;
   color: white;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  font-family: "manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
 }
 
@@ -527,17 +527,18 @@
 }
 
 .awb-wireframe-section {
-  background: rgba(55, 65, 81, 0.5);
+  background: rgba(55, 65, 81, 0.8) !important;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9) !important;
   font-size: 0.875rem;
   min-height: 60px;
   transition: var(--awb-transition);
+  border: 1px solid rgba(75, 85, 99, 0.3);
 }
 
 .awb-wireframe-section:hover {
@@ -735,4 +736,46 @@
   .awb-progress-steps {
     text-align: left;
   }
+}
+
+.awb-field select {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: white !important;
+  padding-right: 3rem !important;
+}
+
+.awb-field select option {
+  background: #000000 !important;
+  color: white !important;
+  padding: 0.5rem;
+}
+
+/* Custom dropdown arrow positioning */
+.awb-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.awb-detailed-section {
+  border: 2px solid rgba(139, 92, 246, 0.3) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(55, 65, 81, 0.8),
+    rgba(75, 85, 99, 0.6)
+  ) !important;
+}
+
+.awb-detailed-section:hover {
+  border-color: rgba(139, 92, 246, 0.6) !important;
+  transform: scale(1.02);
+}
+
+.awb-wireframe-preview {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
