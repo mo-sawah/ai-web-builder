@@ -912,9 +912,13 @@
         this.hideDemoProgress();
 
         // Restore button
-        $('button:contains("Generating Demo")')
-          .html(originalHtml)
-          .prop("disabled", false);
+        const $btn = $('button:contains("Generating Demo")');
+        if ($btn.length === 0) {
+          $btn = $("button").filter(function () {
+            return $(this).html().includes("Generating Demo");
+          });
+        }
+        $btn.html(originalHtml).prop("disabled", false);
       }
     }
 

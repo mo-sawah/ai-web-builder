@@ -19,6 +19,122 @@ class AWB_AI_Generator {
         $this->openrouter_api_key = get_option('awb_openrouter_api_key', '');
         $this->default_model = get_option('awb_default_model', 'openai');
     }
+
+    public function generate_demo_code($concept_data) {
+        try {
+            // Build specialized prompt for demo generation
+            $prompt = $this->build_demo_prompt($concept_data);
+            
+            // Call AI API
+            $response = $this->call_ai_api($prompt);
+            
+            if (!$response) {
+                return false;
+            }
+            
+            // Parse the response to extract HTML, CSS, JS
+            return $this->parse_demo_response($response);
+            
+        } catch (Exception $e) {
+            error_log('AWB Demo Code Generation Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function build_demo_prompt($concept_data) {
+        $form_data = isset($concept_data['form_data']) ? $concept_data['form_data'] : array();
+        $concept = isset($concept_data['concept']) ? $concept_data['concept'] : array();
+        $colors = isset($concept_data['colorScheme']) ? $concept_data['colorScheme'] : array();
+        
+        $business_type = $form_data['businessType'] ?? 'Professional Business';
+        $industry = $form_data['industry'] ?? 'Professional Services';
+        $website_type = $form_data['websiteType'] ?? 'Business Website';
+        
+        return "Create a complete HTML demo website. Return ONLY valid JSON.
+
+    BUSINESS: {$business_type}
+    INDUSTRY: {$industry}
+    TYPE: {$website_type}
+    COLORS: " . json_encode($colors) . "
+
+    Generate realistic content for this specific business. 
+
+    RESPOND WITH ONLY THIS JSON:
+    {
+    \"html\": \"[Complete HTML with embedded CSS and JS]\",
+    \"css\": \"[Additional CSS if needed]\",
+    \"js\": \"[JavaScript functionality]\"
+    }";
+    }
+
+    private function parse_demo_response($response) {
+        // If response is already structured correctly
+        if (isset($response['html'])) {
+            return $response;
+        }
+        
+        // Fallback: create basic demo structure
+        return array(
+            'html' => $this->generate_fallback_html($response),
+            'css' => '',
+            'js' => ''
+        );
+    }
+
+    private function generate_fallback_html($concept_data) {
+        $business_name = $concept_data['concept']['title'] ?? 'Your Business';
+        $tagline = $concept_data['concept']['tagline'] ?? 'Professional Services';
+        
+        return '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>' . esc_html($business_name) . '</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+            header { background: #2c3e50; color: white; padding: 1rem 0; }
+            .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0; text-align: center; }
+            .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
+            .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
+            .btn { display: inline-block; background: #e74c3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; }
+            .content { padding: 4rem 0; }
+            footer { background: #34495e; color: white; padding: 2rem 0; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1>' . esc_html($business_name) . '</h1>
+            </div>
+        </header>
+        
+        <section class="hero">
+            <div class="container">
+                <h1>Welcome to ' . esc_html($business_name) . '</h1>
+                <p>' . esc_html($tagline) . '</p>
+                <a href="#contact" class="btn">Get Started</a>
+            </div>
+        </section>
+        
+        <section class="content">
+            <div class="container">
+                <h2>About Our Services</h2>
+                <p>We provide professional solutions tailored to your business needs. Our experienced team is dedicated to helping you achieve your goals.</p>
+            </div>
+        </section>
+        
+        <footer id="contact">
+            <div class="container">
+                <p>&copy; 2024 ' . esc_html($business_name) . '. All rights reserved.</p>
+                <p>Contact us: info@' . strtolower(str_replace(' ', '', $business_name)) . '.com</p>
+            </div>
+        </footer>
+    </body>
+    </html>';
+    }
     
     public function generate_concept($form_data) {
         try {

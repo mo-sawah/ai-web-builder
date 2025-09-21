@@ -244,7 +244,7 @@ if (!defined('ABSPATH')) {
                     
                     <div class="awb-button-grid awb-button-grid-small" id="designStyles">
                         <button type="button" class="awb-style-btn" data-value="Modern & Clean">Modern & Clean</button>
-                        <button type="button" class="awb-style-btn" data-value="Professional & Corporate">Professional & Corporate</button>
+                        <button type="button" class="awb-style-btn" data-value="Professional & Corporate">Corporate</button>
                         <button type="button" class="awb-style-btn" data-value="Creative & Artistic">Creative & Artistic</button>
                         <button type="button" class="awb-style-btn" data-value="Minimalist">Minimalist</button>
                         <button type="button" class="awb-style-btn" data-value="Bold & Vibrant">Bold & Vibrant</button>

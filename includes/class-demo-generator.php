@@ -91,18 +91,29 @@ class AWB_Demo_Generator {
                 return array('success' => false, 'error' => 'Failed to create demo directory');
             }
             
-            // Generate HTML content using AI
+            // Try AI generation first
             $ai_generator = new AWB_AI_Generator();
             $demo_content = $ai_generator->generate_demo_code($concept_data);
             
-            if (!$demo_content) {
-                return array('success' => false, 'error' => 'Failed to generate demo content');
+            if (!$demo_content || !isset($demo_content['html'])) {
+                // Fallback to basic demo
+                $demo_content = array(
+                    'html' => $ai_generator->generate_fallback_html($concept_data),
+                    'css' => '',
+                    'js' => ''
+                );
             }
             
-            // Save generated files
+            // Save files
             file_put_contents($demo_dir . 'index.html', $demo_content['html']);
-            file_put_contents($demo_dir . 'styles.css', $demo_content['css']);
-            file_put_contents($demo_dir . 'script.js', $demo_content['js']);
+            
+            if (!empty($demo_content['css'])) {
+                file_put_contents($demo_dir . 'styles.css', $demo_content['css']);
+            }
+            
+            if (!empty($demo_content['js'])) {
+                file_put_contents($demo_dir . 'script.js', $demo_content['js']);
+            }
             
             // Generate demo URL
             $upload_url = wp_upload_dir()['baseurl'];
@@ -116,7 +127,7 @@ class AWB_Demo_Generator {
             
         } catch (Exception $e) {
             error_log('AWB Demo Generation Error: ' . $e->getMessage());
-            return array('success' => false, 'error' => 'Failed to generate demo');
+            return array('success' => false, 'error' => 'Failed to generate demo: ' . $e->getMessage());
         }
     }
     
