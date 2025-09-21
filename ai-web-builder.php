@@ -3,7 +3,7 @@
  * Plugin Name: AI Web Builder
  * Plugin URI: https://sawahsolutions.com
  * Description: Generate comprehensive website concepts with AI-powered wireframes, cost estimates, and live demos
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Mohamed Sawah
  * Author URI: https://sawahsolutions.com
  * License: GPL v2 or later
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AI_WEB_BUILDER_VERSION', '1.0.4');
+define('AI_WEB_BUILDER_VERSION', '1.0.5');
 define('AI_WEB_BUILDER_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AI_WEB_BUILDER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('AI_WEB_BUILDER_ASSETS_URL', AI_WEB_BUILDER_PLUGIN_URL . 'assets/');
