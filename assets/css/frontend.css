@@ -738,12 +738,6 @@
   }
 }
 
-.awb-field select {
-  background: rgba(0, 0, 0, 0.8) !important;
-  color: white !important;
-  padding-right: 3rem !important;
-}
-
 .awb-field select option {
   background: #000000 !important;
   color: white !important;
