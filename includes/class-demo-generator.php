@@ -21,6 +21,65 @@ class AWB_Demo_Generator {
             wp_mkdir_p($this->upload_dir);
         }
     }
+
+    public function generate_demo_code($concept_data) {
+        try {
+            $prompt = $this->build_demo_prompt($concept_data);
+            $response = $this->call_ai_api($prompt);
+            
+            if (!$response || !isset($response['html'])) {
+                return false;
+            }
+            
+            return $response;
+            
+        } catch (Exception $e) {
+            error_log('AWB Demo Code Generation Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function build_demo_prompt($concept_data) {
+        $business_type = $concept_data['form_data']['businessType'] ?? 'Business';
+        $industry = $concept_data['form_data']['industry'] ?? 'Professional Services';
+        $website_type = $concept_data['form_data']['websiteType'] ?? 'Business Website';
+        $design_style = $concept_data['form_data']['designStyle'] ?? 'Modern & Clean';
+        $features = $concept_data['form_data']['features'] ?? array();
+        $colors = $concept_data['colorScheme'] ?? array();
+        
+        return "You are an expert web developer. Create a complete, functional HTML demo website.
+
+    BUSINESS DETAILS:
+    - Business: {$business_type}
+    - Industry: {$industry}
+    - Website Type: {$website_type}
+    - Design Style: {$design_style}
+    - Features: " . implode(', ', $features) . "
+    - Colors: " . json_encode($colors) . "
+
+    REQUIREMENTS:
+    1. Create realistic, industry-specific content
+    2. Use the provided color scheme
+    3. Include functional features based on website type
+    4. Make it responsive and professional
+    5. Add realistic business information
+
+    RESPOND WITH ONLY THIS JSON:
+    {
+    \"html\": \"[Complete HTML document with inline CSS and JS]\",
+    \"css\": \"[Additional CSS styles]\",
+    \"js\": \"[JavaScript functionality]\"
+    }
+
+    IMPORTANT:
+    - For E-commerce: Include product grids, shopping cart, product pages
+    - For Restaurant: Include menu, reservations, location
+    - For Portfolio: Include project gallery, about section
+    - For SaaS: Include pricing, features, demo sections
+    - Use REAL placeholder content, not lorem ipsum
+    - Make forms functional with proper validation
+    - Include hover effects and animations";
+    }
     
     public function generate_demo($concept_data) {
         try {
@@ -32,32 +91,27 @@ class AWB_Demo_Generator {
                 return array('success' => false, 'error' => 'Failed to create demo directory');
             }
             
-            // Generate HTML content
-            $html_content = $this->build_html_demo($concept_data);
+            // Generate HTML content using AI
+            $ai_generator = new AWB_AI_Generator();
+            $demo_content = $ai_generator->generate_demo_code($concept_data);
             
-            // Generate CSS styles
-            $css_content = $this->build_css_styles($concept_data);
+            if (!$demo_content) {
+                return array('success' => false, 'error' => 'Failed to generate demo content');
+            }
             
-            // Generate JavaScript functionality
-            $js_content = $this->build_js_functionality($concept_data);
-            
-            // Save files
-            file_put_contents($demo_dir . 'index.html', $html_content);
-            file_put_contents($demo_dir . 'styles.css', $css_content);
-            file_put_contents($demo_dir . 'script.js', $js_content);
+            // Save generated files
+            file_put_contents($demo_dir . 'index.html', $demo_content['html']);
+            file_put_contents($demo_dir . 'styles.css', $demo_content['css']);
+            file_put_contents($demo_dir . 'script.js', $demo_content['js']);
             
             // Generate demo URL
             $upload_url = wp_upload_dir()['baseurl'];
             $demo_url = $upload_url . '/ai-web-builder-demos/' . $demo_id . '/index.html';
             
-            // Save demo info to database
-            $this->save_demo_info($demo_id, $concept_data, $demo_url);
-            
             return array(
                 'success' => true,
                 'demo_url' => $demo_url,
-                'demo_id' => $demo_id,
-                'files_created' => array('index.html', 'styles.css', 'script.js')
+                'demo_id' => $demo_id
             );
             
         } catch (Exception $e) {

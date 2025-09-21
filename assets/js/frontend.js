@@ -846,17 +846,21 @@
       }
 
       try {
-        // Show loading state
+        // Show enhanced loading state
         const $btn = $('button:contains("Build Live Demo")');
         const originalHtml = $btn.html();
+
         $btn
           .html(
             `
-                    <div class="awb-spinner" style="width: 20px; height: 20px; margin: 0; border-width: 2px;"></div>
-                    Generating Demo...
-                `
+            <div class="awb-spinner" style="width: 20px; height: 20px; margin: 0; border-width: 2px;"></div>
+            Generating Demo...
+        `
           )
           .prop("disabled", true);
+
+        // Show demo generation progress
+        this.showDemoProgress();
 
         const response = await $.ajax({
           url: awb_ajax.ajaxurl,
@@ -864,35 +868,40 @@
           data: {
             action: "awb_generate_demo",
             nonce: awb_ajax.nonce,
-            concept_data: JSON.stringify(this.currentConcept),
+            concept_data: JSON.stringify({
+              ...this.currentConcept,
+              form_data: this.formData,
+            }),
           },
-          timeout: 60000,
+          timeout: 180000, // 3 minutes for AI generation
         });
 
         const result = JSON.parse(response);
 
         if (result.success) {
-          // Open demo in new tab
-          window.open(result.demo_url, "_blank");
-
-          // Update button
+          // Update button and open demo
           $btn
             .html(
               `
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6m0-2h6v6"/>
-                        </svg>
-                        View Live Demo
-                    `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6m0-2h6v6"/>
+                </svg>
+                View Live Demo
+            `
             )
             .prop("disabled", false);
 
-          // Store demo URL for future clicks
+          // Store demo URL
           $btn.attr("onclick", `window.open('${result.demo_url}', '_blank')`);
+
+          // Hide progress and open demo
+          this.hideDemoProgress();
+          window.open(result.demo_url, "_blank");
 
           this.trackEvent("demo_generated", {
             demo_id: result.demo_id,
             business_type: this.formData.businessType,
+            website_type: this.formData.websiteType,
           });
         } else {
           throw new Error(result.error || "Failed to generate demo");
@@ -900,11 +909,61 @@
       } catch (error) {
         console.error("Demo generation error:", error);
         this.showError("Failed to generate demo. Please try again.");
+        this.hideDemoProgress();
 
         // Restore button
         $('button:contains("Generating Demo")')
           .html(originalHtml)
           .prop("disabled", false);
+      }
+    }
+
+    showDemoProgress() {
+      const progressHtml = `
+        <div id="awb-demo-progress" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            z-index: 10000;
+            text-align: center;
+            max-width: 400px;
+        ">
+            <div class="awb-spinner" style="margin: 0 auto 1rem;"></div>
+            <h3>Building Your Live Demo...</h3>
+            <p>AI is generating custom HTML, CSS, and JavaScript based on your business requirements.</p>
+            <div id="demo-step" style="margin-top: 1rem; color: #8b5cf6;">
+                Analyzing business requirements...
+            </div>
+        </div>
+    `;
+
+      $("body").append(progressHtml);
+
+      // Animate progress steps
+      const steps = [
+        "Analyzing business requirements...",
+        "Generating industry-specific content...",
+        "Creating responsive layouts...",
+        "Building interactive features...",
+        "Finalizing demo website...",
+      ];
+
+      let stepIndex = 0;
+      this.demoProgressInterval = setInterval(() => {
+        stepIndex = (stepIndex + 1) % steps.length;
+        $("#demo-step").text(steps[stepIndex]);
+      }, 3000);
+    }
+
+    hideDemoProgress() {
+      $("#awb-demo-progress").remove();
+      if (this.demoProgressInterval) {
+        clearInterval(this.demoProgressInterval);
       }
     }
 
